@@ -11,8 +11,30 @@
   var types = {};
   var extend = require('utils.extend');
   var events = require('utils.events');
+  var bind = require('utils.bind');
 
-  // 简单字符串替换
+    
+  // 点击事件
+  function onClick (e) {
+    
+    var context = this;
+    
+    if (e.target.parentNode !== context.$el) {
+      return;
+    }
+
+    var cellSize = context.$chessboard.getCellSize();
+    var offset = cellSize / 2;
+    var x = Math.round(Math.max(e.offsetX - offset, 0) / cellSize);
+    var y = Math.round(Math.max(e.offsetY - offset, 0) / cellSize);
+
+    if (x >= context.$chessboard.getRow() || y >= context.$chessboard.getColumn()) {
+      return;
+    }
+    context.chess(x, y);
+  }
+
+  // 字符串替换
   function compile (str, data) {
     var reg = /{{([$_\w]+)}}/g;
     var result;
@@ -56,13 +78,20 @@
     disabled_class: 'disabled'
   }
   
+
   Render.prototype.init = function (context) {
+    
     if (this._init) {
       return;
     }
 
+    // register event
+    var _bindClick = bind(onClick, context);
+    context.$el.addEventListener('click', _bindClick, false);
+    
     Render.trigger(this.$options.type, 'init', context, this.$options);
     Render.trigger(this.$options.type, 'drawChessBoard', context);
+    
     this.$container = this.initContainer(context);
     events.sub(this, 'update_container', this.updateContainer);
     events.sub(this, 'cancel_chess', function () {
@@ -71,6 +100,7 @@
     events.sub(this, 'cancel_withdraw', function () {
       context.cancelWithdraw();
     });
+    this._bindClick = _bindClick;
     this._init = true;
   }
 
@@ -118,6 +148,9 @@
       } else if (target === cancelWithdrawBtn) {
         events.pub(_self, 'cancel_withdraw');
       }
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
     });
     context.$el.appendChild(container);
     return container;

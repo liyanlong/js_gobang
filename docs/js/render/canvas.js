@@ -8,17 +8,6 @@
 
 })(window, function (Render, require) {
  
-  var bind = require('utils.bind');
-
-  function onClick (e) {
-    
-    var context = this;
-    var cellSize = context.$chessboard.getCellSize();
-    var offset = cellSize / 2;
-    var x = Math.max(e.offsetX - offset, 0);
-    var y = Math.max(e.offsetY - offset, 0);
-    context.chess(Math.round(x / cellSize),  Math.round(y / cellSize));
-  }
 
   function drawChessBoardLine (ctx, x1, y1, x2, y2) {
     ctx.moveTo(x1, y1);
@@ -33,8 +22,6 @@
       var $chessboard = context.$chessboard;
       var $canvas = document.createElement('canvas');
 
-      // click event
-      var _event = bind(onClick, context);
       /*
       * inject canvas dom,
       * inject canvas 2d context
@@ -45,11 +32,8 @@
       context.$ctx = $canvas.getContext('2d');
       $canvas.setAttribute('width', $chessboard.getOuterWidth());
       $canvas.setAttribute('height', $chessboard.getOuterHeight());
-      $canvas.addEventListener('click', _event);
       $el.appendChild($canvas);
-      this._event = _event;
       this._img = new Image();
-
     },
 
     // 绘制棋盘
@@ -94,14 +78,14 @@
       var gradient = $ctx.createRadialGradient(
         cricleX, 
         cricleY,
-        r, 
+        0, 
         cricleX, 
         cricleY, 
-        0
+        r
       );
       var colorStops = context.$currentPlayer.getColorStops();
-      (colorStops || []).forEach(function (colorStop) {
-        gradient.addColorStop(colorStop[0], colorStop[1]);
+      (colorStops || []).forEach(function (colorStop, index) {
+        gradient.addColorStop(index / colorStops.length, colorStop);
       });
       $ctx.fillStyle = gradient;
       $ctx.fill();
@@ -111,7 +95,6 @@
       context.$ctx.drawImage(this._img, 0, 0);
     },
     beforeDestroy: function (context) {
-      context.$canvas.removeEventListener('click', this._event);
     }
   });
 });

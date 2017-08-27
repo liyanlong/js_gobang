@@ -120,12 +120,12 @@
 
   ChessPlayer.black_defaults = extend({}, ChessPlayer.defaults, {
     name: '小龙龙',
-    colorStops: [[0, '#0a0a0a'], [1, '#636766']]
+    colorStops: ['#636766', '#0a0a0a']
   });
 
   ChessPlayer.white_defaults = extend({}, ChessPlayer.defaults, {
     name: '小君君',
-    colorStops: [[0, '#d1d1d1'], [1, '#f9f9f9']]
+    colorStops: ['#f9f9f9', '#d1d1d1']
   });
 
   return ChessPlayer;
